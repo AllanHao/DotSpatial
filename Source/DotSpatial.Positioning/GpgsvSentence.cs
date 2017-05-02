@@ -2,13 +2,6 @@
 // Product Name: DotSpatial.Positioning.dll
 // Description:  A library for managing GPS connections.
 // ********************************************************************************************************
-// The contents of this file are subject to the MIT License (MIT)
-// you may not use this file except in compliance with the License. You may obtain a copy of the License at
-// http://dotspatial.codeplex.com/license
-//
-// Software distributed under the License is distributed on an "AS IS" basis, WITHOUT WARRANTY OF
-// ANY KIND, either expressed or implied. See the License for the specific language governing rights and
-// limitations under the License.
 //
 // The Original Code is from http://gps3.codeplex.com/ version 3.0
 //
@@ -155,15 +148,15 @@ namespace DotSpatial.Positioning
             // Example (signal acquired): $GPGSV, 3, 1, 10, 20, 78, 331, 45, 01, 59, 235, 47, 22, 41, 069, ,13, 32, 252, 45*70
 
             // Get the total message count
-            if (wordCount > 1 && words[1].Length != 0)
+            if (wordCount > 0 && words[0].Length != 0)
                 TotalMessageCount = int.Parse(words[0], NmeaCultureInfo);
 
             // Get the current message number
-            if (wordCount > 2 && words[2].Length != 0)
+            if (wordCount > 1 && words[1].Length != 0)
                 CurrentMessageNumber = int.Parse(words[1], NmeaCultureInfo);
 
             // Get the total message count
-            if (wordCount > 3 && words[3].Length != 0)
+            if (wordCount > 2 && words[2].Length != 0)
                 SatellitesInView = int.Parse(words[2], NmeaCultureInfo);
 
             // Make a new list of satellites

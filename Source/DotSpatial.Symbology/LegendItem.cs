@@ -2,13 +2,6 @@
 // Product Name: DotSpatial.Symbology.dll
 // Description:  Contains the business logic for symbology layers and symbol categories.
 // ********************************************************************************************************
-// The contents of this file are subject to the MIT License (MIT)
-// you may not use this file except in compliance with the License. You may obtain a copy of the License at
-// http://dotspatial.codeplex.com/license
-//
-// Software distributed under the License is distributed on an "AS IS" basis, WITHOUT WARRANTY OF
-// ANY KIND, either expressed or implied. See the License for the specific language governing rights and
-// limitations under the License.
 //
 // The Original Code is from MapWindow.dll version 6.0
 //
@@ -64,6 +57,7 @@ namespace DotSpatial.Symbology
         private SymbolMode _legendSymbolMode;
         private Size _legendSymbolSize;
         private string _legendText;
+        private bool _legendTextReadInly;
         private LegendType _legendType;
         private List<SymbologyMenuItem> _menuItems;
         private ILegendItem _parentLegendItem;
@@ -185,55 +179,6 @@ namespace DotSpatial.Symbology
             if (drawBox) LegendSymbol_Painted(g, new Rectangle(2, 2, (int)x - 4, (int)h));
 
             b.Dispose();
-        }
-
-        /// <summary>
-        /// Gets the nearest value.
-        /// </summary>
-        /// <param name="value">The value.</param>
-        /// <param name="values">The values.</param>
-        /// <returns></returns>
-        protected static double GetNearestValue(double value, List<double> values)
-        {
-            if (values == null || values.Count == 0)
-                return 0;
-            int indx = values.BinarySearch(value);
-            if (indx >= 0)
-            {
-                return values[indx];
-            }
-            int iHigh = -indx;
-            if (iHigh >= 0 && iHigh < values.Count)
-            {
-                double high = values[iHigh];
-                int iLow = -indx - 1;
-                if (iLow >= 0 && iLow < values.Count && iLow != iHigh)
-                {
-                    double low = values[iLow];
-                    return value - low < high - value ? low : high;
-                }
-            }
-            int iLow2 = -indx - 1;
-            if (iLow2 >= 0 && iLow2 < values.Count)
-            {
-                return values[iLow2];
-            }
-            return 0;
-        }
-
-        /// <summary>
-        /// Bytes the range.
-        /// </summary>
-        /// <param name="value">The value.</param>
-        /// <returns></returns>
-        protected static int ByteRange(double value)
-        {
-            int rounded = (int)Math.Round(value);
-            if (rounded > 255)
-                return 255;
-            if (rounded < 0)
-                return 0;
-            return rounded;
         }
 
         /// <summary>
@@ -367,7 +312,7 @@ namespace DotSpatial.Symbology
         /// <summary>
         /// Gets or sets a boolean that indicates whether or not the legend should draw the child LegendItems for this category.
         /// </summary>
-        [Serialize("IsExpanded")] 
+        [Serialize("IsExpanded")]
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public virtual bool IsExpanded
         {
@@ -427,11 +372,11 @@ namespace DotSpatial.Symbology
         }
 
         /// <summary>
-        /// Gets or sets the text for this category to appear in the legend.  This might be a category name,
+        /// Gets or sets the text for this category to appear in the legend. This might be a category name,
         /// or a range of values.
         /// </summary>
         [Description("Gets or sets the text for this category to appear in the legend.")]
-        [Serialize("LegendText")]
+        [Browsable(false), Serialize("LegendText")]
         public virtual string LegendText
         {
             get
@@ -442,6 +387,25 @@ namespace DotSpatial.Symbology
             {
                 if (value == _legendText) return;
                 _legendText = value;
+                OnItemChanged(this);
+            }
+        }
+
+        /// <summary>
+        /// Indicates whether the user can change the legend text in GUI.
+        /// </summary>
+        [Description("Indicates whether the user can change the legend text in GUI.")]
+        [Browsable(false), Serialize("LegendTextReadOnly")]
+        public virtual bool LegendTextReadOnly
+        {
+            get
+            {
+                return _legendTextReadInly;
+            }
+            set
+            {
+                if (value == _legendTextReadInly) return;
+                _legendTextReadInly = value;
                 OnItemChanged(this);
             }
         }

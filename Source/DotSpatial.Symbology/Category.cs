@@ -2,13 +2,6 @@
 // Product Name: DotSpatial.Symbology.dll
 // Description:  Contains the business logic for symbology layers and symbol categories.
 // ********************************************************************************************************
-// The contents of this file are subject to the MIT License (MIT)
-// you may not use this file except in compliance with the License. You may obtain a copy of the License at
-// http://dotspatial.codeplex.com/license
-//
-// Software distributed under the License is distributed on an "AS IS" basis, WITHOUT WARRANTY OF
-// ANY KIND, either expressed or implied. See the License for the specific language governing rights and
-// limitations under the License.
 //
 // The Original Code is from MapWindow.dll version 6.0
 //
@@ -71,11 +64,11 @@ namespace DotSpatial.Symbology
                 case IntervalSnapMethod.SignificantFigures:
                     if (Maximum != null)
                     {
-                        Maximum = SigFig(Maximum.Value, numDigits);
+                        Maximum = Utils.SigFig(Maximum.Value, numDigits);
                     }
                     if (Minimum != null)
                     {
-                        Minimum = SigFig(Minimum.Value, numDigits);
+                        Minimum = Utils.SigFig(Minimum.Value, numDigits);
                     }
                     break;
                 case IntervalSnapMethod.Rounding:
@@ -91,33 +84,14 @@ namespace DotSpatial.Symbology
                 case IntervalSnapMethod.DataValue:
                     if (Maximum != null)
                     {
-                        Maximum = NearestValue((double)Maximum, values);
+                        Maximum = Utils.GetNearestValue((double)Maximum, values);
                     }
                     if (Minimum != null)
                     {
-                        Minimum = NearestValue((double)Minimum, values);
+                        Minimum = Utils.GetNearestValue((double)Minimum, values);
                     }
                     break;
             }
-        }
-
-        private static double SigFig(double value, int numFigures)
-        {
-            int md = (int)Math.Ceiling(Math.Log10(Math.Abs(value)));
-            md -= numFigures;
-            double norm = Math.Pow(10, md);
-            return norm * Math.Round(value / norm);
-        }
-
-        /// <summary>
-        /// Searches the list and returns the nearest value in the list to the specified value.
-        /// </summary>
-        /// <param name="value"></param>
-        /// <param name="values"></param>
-        /// <returns></returns>
-        private static double NearestValue(double value, List<double> values)
-        {
-            return GetNearestValue(value, values);
         }
 
         /// <summary>

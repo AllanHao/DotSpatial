@@ -2,13 +2,6 @@
 // Product Name: DotSpatial.Controls.dll
 // Description:  The Windows Forms user interface controls like the map, legend, toolbox, ribbon and others.
 // ********************************************************************************************************
-// The contents of this file are subject to the MIT License (MIT)
-// you may not use this file except in compliance with the License. You may obtain a copy of the License at
-// http://dotspatial.codeplex.com/license
-//
-// Software distributed under the License is distributed on an "AS IS" basis, WITHOUT WARRANTY OF
-// ANY KIND, either expressed or implied. See the License for the specific language governing rights and
-// limitations under the License.
 //
 // The Original Code is from MapWindow.dll version 6.0
 //
@@ -852,29 +845,26 @@ namespace DotSpatial.Controls
             Point loc = new Point(e.X + ControlRectangle.X, e.Location.Y + ControlRectangle.Top);
             if (e.Button == MouseButtons.Left)
             {
-                if (e.ItemBox.Item.LegendSymbolMode == SymbolMode.Checkbox)
+                if (e.ItemBox.Item.LegendSymbolMode == SymbolMode.Checkbox && e.ItemBox.CheckBox.Contains(loc))
                 {
-                    if (e.ItemBox.CheckBox.Contains(loc))
+                    IRenderableLegendItem rendItem = e.ItemBox.Item as IRenderableLegendItem;
+                    if (rendItem != null)
                     {
-                        IRenderableLegendItem rendItem = e.ItemBox.Item as IRenderableLegendItem;
-                        if (rendItem != null)
-                        {
-                            // force a re-draw in the case where we are talking about layers.
-                            rendItem.IsVisible = !rendItem.IsVisible;
-                        }
-                        else
-                        {
-                            e.ItemBox.Item.Checked = !e.ItemBox.Item.Checked;
-                        }
-                        if (CheckBoxMouseUp != null) CheckBoxMouseUp(this, e);
-                        RefreshNodes();
+                        // force a re-draw in the case where we are talking about layers.
+                        rendItem.IsVisible = !rendItem.IsVisible;
                     }
-                }
-                if (e.ItemBox.Textbox.Contains(loc))
-                {
-                    if (e.ItemBox == _previousMouseDown)
+                    else
                     {
-                        _isDragging = false;
+                        e.ItemBox.Item.Checked = !e.ItemBox.Item.Checked;
+                    }
+                    if (CheckBoxMouseUp != null) CheckBoxMouseUp(this, e);
+                    RefreshNodes();
+                }
+                if (e.ItemBox.Textbox.Contains(loc) && e.ItemBox == _previousMouseDown)
+                {
+                    _isDragging = false;
+                    if (!e.ItemBox.Item.LegendTextReadOnly)
+                    {
                         // Edit via text box
                         _editBox.Left = e.ItemBox.Textbox.Left;
                         _editBox.Width = e.ItemBox.Textbox.Width + 10;
@@ -886,7 +876,7 @@ namespace DotSpatial.Controls
                     }
                 }
             }
-            if (e.Button == MouseButtons.Right)
+            else if (e.Button == MouseButtons.Right)
             {
                 if (e.ItemBox.Item.ContextMenuItems == null) return;
                 _contextMenu.MenuItems.Clear();
@@ -950,12 +940,12 @@ namespace DotSpatial.Controls
                 {
                     _isDragging = true;
                     ILegendItem li = e.ItemBox.Item;
-                    while (li != null && li as ILayer == null)
+                    while (li != null && !(li is ILayer))
                     {
                         li = li.GetParentItem();
                     }
                     ILayer lyr = li as ILayer;
-                    if (lyr != null)
+                    if (lyr != null && !RootNodes.Contains(lyr)) // don't allow to drag root nodes
                     {
                         _dragItem = BoxFromItem(lyr);
                     }

@@ -2,13 +2,6 @@
 // Product Name: DotSpatial.Positioning.dll
 // Description:  A library for managing GPS connections.
 // ********************************************************************************************************
-// The contents of this file are subject to the MIT License (MIT)
-// you may not use this file except in compliance with the License. You may obtain a copy of the License at
-// http://dotspatial.codeplex.com/license
-//
-// Software distributed under the License is distributed on an "AS IS" basis, WITHOUT WARRANTY OF
-// ANY KIND, either expressed or implied. See the License for the specific language governing rights and
-// limitations under the License.
 //
 // The Original Code is from http://gps3.codeplex.com/ version 3.0
 //
@@ -102,7 +95,7 @@ namespace DotSpatial.Positioning
 
             // No. Set the current checksum
             ExistingChecksum = CorrectChecksum;
-            _isValid = true;  
+            _isValid = true;
 
             // Does it contain an asterisk? If not, add one
             if (Sentence.IndexOf("*", StringComparison.Ordinal) == -1)
@@ -111,7 +104,7 @@ namespace DotSpatial.Positioning
             // Calculate and append the checksum
             Sentence += CorrectChecksum;
         }
-        
+
         /// <summary>
         /// Sets this classes properties from the Sentence.
         /// </summary>
@@ -144,7 +137,7 @@ namespace DotSpatial.Positioning
             // Next, get the index of the asterisk
             int asteriskIndex = Sentence.IndexOf("*", StringComparison.Ordinal);
             int dataEndIndex = asteriskIndex == -1 ? Sentence.Length - 1 : asteriskIndex - 1; //dataEndIndex is before asterix if it exists, otherwise it's the last character
-           
+
             // Determine if the data is properly formated. Not propertly formated data leads to a negative length.
             if (dataEndIndex < dataStartIndex) return;
 
@@ -159,7 +152,7 @@ namespace DotSpatial.Positioning
             byte checksum = (byte)Sentence[dollarSignIndex + 1];
             for (int index = dollarSignIndex + 2; index <= dataEndIndex; index++)
                 checksum ^= (byte)Sentence[index];
-            
+
             CorrectChecksum = checksum.ToString("X2", NmeaCultureInfo); // The checksum is the two-character hexadecimal value
 
             // Get existing checksum
@@ -192,7 +185,7 @@ namespace DotSpatial.Positioning
         /// <returns>Invalid if position is outside of Words array or word at the position is empty.</returns>
         protected DilutionOfPrecision ParseDilution(int position)
         {
-            if (Words.Length <= position || Words[position].Length == 0) return DilutionOfPrecision.Invalid;
+            if (Words.Length <= position || Words[position].Length == 0 || float.Parse(Words[position], NmeaCultureInfo) <= 0) return DilutionOfPrecision.Invalid;
             return new DilutionOfPrecision(float.Parse(Words[position], NmeaCultureInfo));
         }
 
@@ -470,6 +463,8 @@ namespace DotSpatial.Positioning
         /// <returns>true if the current object is equal to the <paramref name="other"/> parameter; otherwise, false.</returns>
         public bool Equals(NmeaSentence other)
         {
+            if (other == null) return false;
+            if (Sentence == null) return other.Sentence == null;
             return Sentence.Equals(other.Sentence, StringComparison.Ordinal);
         }
 

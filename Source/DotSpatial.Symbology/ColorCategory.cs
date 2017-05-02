@@ -3,13 +3,6 @@
 // Description:  The core libraries for the DotSpatial project.
 //
 // ********************************************************************************************************
-// The contents of this file are subject to the MIT License (MIT)
-// you may not use this file except in compliance with the License. You may obtain a copy of the License at
-// http://dotspatial.codeplex.com/license
-//
-// Software distributed under the License is distributed on an "AS IS" basis, WITHOUT WARRANTY OF
-// ANY KIND, either expressed or implied. See the License for the specific language governing rights and
-// limitations under the License.
 //
 // The Original Code is from MapWindow.dll version 6.0
 //
@@ -221,10 +214,10 @@ namespace DotSpatial.Symbology
                     break;
             }
 
-            int alpha = ByteRange(LowColor.A + Math.Round((HighColor.A - LowColor.A) * p));
-            int red = ByteRange(LowColor.R + Math.Round((HighColor.R - LowColor.R) * p));
-            int green = ByteRange(LowColor.G + Math.Round((HighColor.G - LowColor.G) * p));
-            int blue = ByteRange(LowColor.B + Math.Round((HighColor.B - LowColor.B) * p));
+            int alpha = Utils.ByteRange(LowColor.A + Math.Round((HighColor.A - LowColor.A) * p));
+            int red = Utils.ByteRange(LowColor.R + Math.Round((HighColor.R - LowColor.R) * p));
+            int green = Utils.ByteRange(LowColor.G + Math.Round((HighColor.G - LowColor.G) * p));
+            int blue = Utils.ByteRange(LowColor.B + Math.Round((HighColor.B - LowColor.B) * p));
             return Color.FromArgb(alpha, red, green, blue);
         }
 

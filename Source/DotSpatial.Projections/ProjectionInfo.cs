@@ -2,13 +2,6 @@
 // Product Name: DotSpatial.Projection
 // Description:  The basic module for MapWindow version 6.0
 // ********************************************************************************************************
-// The contents of this file are subject to the MIT License (MIT)
-// you may not use this file except in compliance with the License. You may obtain a copy of the License at
-// http://dotspatial.codeplex.com/license
-//
-// Software distributed under the License is distributed on an "AS IS" basis, WITHOUT WARRANTY OF
-// ANY KIND, either expressed or implied. See the License for the specific language governing rights and
-// limitations under the License.
 //
 // The Original Code is from MapWindow.dll version 6.0
 //
@@ -669,10 +662,14 @@ namespace DotSpatial.Projections
         /// <param name="proj4String">
         /// The proj4String to read in while defining the projection
         /// </param>
-        public static ProjectionInfo FromProj4String(string proj4String)
+        /// <param name="authority">[Optional] Authority, for example "EPSG"</param>
+        /// <param name="authorityCode">[Optional] Authority code, for example 4326</param>
+        public static ProjectionInfo FromProj4String(string proj4String, string authority = null, int authorityCode = -1)
         {
             var info = new ProjectionInfo();
             info.ParseProj4String(proj4String);
+            if (!string.IsNullOrWhiteSpace(authority)) info.Authority = authority;
+            if (authorityCode > 0) info.AuthorityCode = authorityCode;
             return info;
         }
 

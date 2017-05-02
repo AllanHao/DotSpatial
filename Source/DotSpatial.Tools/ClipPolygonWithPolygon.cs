@@ -1,7 +1,7 @@
 ﻿// *******************************************************************************************************
 // Product: DotSpatial.Tools.ClipPolygonWithPolygon.cs
 // Description:  Clip a polygon with another polygon.
-// Copyright & License: See www.DotSpatial.org.
+
 // *******************************************************************************************************
 // Contributor(s): Open source contributors may list themselves and their modifications here.
 // Contribution of code constitutes transferral of copyright from authors to DotSpatial copyright holders. 
@@ -136,6 +136,11 @@ namespace DotSpatial.Tools
             {
                 output.Features.Add(fe);
             }
+
+            // Setting the AttributesPopulated to true here means the output shapefile will get attribute columns copied from
+            // the source file. This problem occurs when using the ClipPolygonWithPolygon tool due to how the input/output files
+            // are loaded. https://github.com/DotSpatial/DotSpatial/issues/892
+            output.AttributesPopulated = true;
 
             output.SaveAs(output.Filename, true);
             return true;

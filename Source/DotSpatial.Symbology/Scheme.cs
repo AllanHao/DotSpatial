@@ -2,13 +2,6 @@
 // Product Name: DotSpatial.Symbology.dll
 // Description:  Contains the business logic for symbology layers and symbol categories.
 // ********************************************************************************************************
-// The contents of this file are subject to the MIT License (MIT)
-// you may not use this file except in compliance with the License. You may obtain a copy of the License at
-// http://dotspatial.codeplex.com/license
-//
-// Software distributed under the License is distributed on an "AS IS" basis, WITHOUT WARRANTY OF
-// ANY KIND, either expressed or implied. See the License for the specific language governing rights and
-// limitations under the License.
 //
 // The Original Code is from MapWindow.dll version 6.0
 //
@@ -22,6 +15,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
+using System.Linq;
 
 namespace DotSpatial.Symbology
 {
@@ -49,12 +43,12 @@ namespace DotSpatial.Symbology
             /// <summary>
             /// A double value for the maximum value for the break
             /// </summary>
-            public double? Maximum;
+            public double? Maximum { get; set; }
 
             /// <summary>
             /// The string name
             /// </summary>
-            public string Name;
+            public string Name { get; set; }
 
             /// <summary>
             ///  Creates a new instance of a break
@@ -171,13 +165,17 @@ namespace DotSpatial.Symbology
         protected void CreateBreakCategories()
         {
             int count = EditorSettings.NumBreaks;
-            if (EditorSettings.IntervalMethod == IntervalMethod.Quantile)
+            switch (EditorSettings.IntervalMethod)
             {
-                Breaks = GetQuantileBreaks(count);
-            }
-            else
-            {
-                Breaks = GetEqualBreaks(count);
+                case IntervalMethod.EqualFrequency:
+                    Breaks = GetQuantileBreaks(count);
+                    break;
+                case IntervalMethod.NaturalBreaks:
+                    Breaks = GetNaturalBreaks(count);
+                    break;
+                default:
+                    Breaks = GetEqualBreaks(count);
+                    break;
             }
             ApplyBreakSnapping();
             SetBreakNames(Breaks);
@@ -208,7 +206,7 @@ namespace DotSpatial.Symbology
                 colorIndex++;
             }
         }
-
+      
         /// <summary>
         /// THe defaul
         /// </summary>
@@ -411,7 +409,7 @@ namespace DotSpatial.Symbology
                     {
                         if (item.Maximum == null) continue;
                         double val = (double)item.Maximum;
-                        item.Maximum = SigFig(val, EditorSettings.IntervalRoundingDigits);
+                        item.Maximum = Utils.SigFig(val, EditorSettings.IntervalRoundingDigits);
                     }
                     break;
                 case IntervalSnapMethod.Rounding:
@@ -425,29 +423,10 @@ namespace DotSpatial.Symbology
                     foreach (Break item in Breaks)
                     {
                         if (item.Maximum == null) continue;
-                        item.Maximum = NearestValue((double)item.Maximum, Values);
+                        item.Maximum = Utils.GetNearestValue((double)item.Maximum, Values);
                     }
                     break;
             }
-        }
-
-        /// <summary>
-        /// Searches the list and returns the nearest value in the list to the specified value.
-        /// </summary>
-        /// <param name="value"></param>
-        /// <param name="values"></param>
-        /// <returns></returns>
-        private static double NearestValue(double value, List<double> values)
-        {
-            return GetNearestValue(value, values);
-        }
-
-        private static double SigFig(double value, int numFigures)
-        {
-            int md = (int)Math.Ceiling(Math.Log10(Math.Abs(value)));
-            md -= numFigures;
-            double norm = Math.Pow(10, md);
-            return norm * Math.Round(value / norm);
         }
 
         /// <summary>
@@ -477,6 +456,24 @@ namespace DotSpatial.Symbology
                 }
             }
             return result;
+        }
+
+        protected List<Break> GetNaturalBreaks(int count)
+        {
+            var breaks = new JenksBreaksCalcuation(Values, count);
+            breaks.Optimize();
+            var results = breaks.GetResults();
+
+            var output = new List<Break>(count);
+            output.AddRange(results.Select(result => new Break
+            {
+                Maximum = Values[result]
+            }));
+
+            // Set latest Maximum to null
+            output.Last().Maximum = null;
+
+            return output;
         }
 
         /// <summary>
